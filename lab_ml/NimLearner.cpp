@@ -6,67 +6,14 @@
 #include "NimLearner.h"
 #include <ctime>
 #include <fstream>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <algorithm>
 //#include <sstring>
-
-
-/**
- * Constructor to create a game of Nim with `startingTokens` starting tokens.
- *
- * This function creates a graph, `g_` representing all of the states of a
- * game of Nim with vertex labels "p#-X", where:
- * - # is the current player's turn; p1 for Player 1, p2 for Player2
- * - X is the tokens remaining at the start of a player's turn
- *
- * For example:
- *   "p1-4" is Player 1's turn with four (4) tokens remaining
- *   "p2-8" is Player 2's turn with eight (8) tokens remaining
- *
- * All legal moves between states are created as edges with initial weights
- * of 0.
- *
- * @param startingTokens The number of starting tokens in the game of Nim.
- */
-NimLearner::NimLearner(unsigned startingTokens) : g_(true, true) {
-    /* Your code goes here! */
-    //define starting vertex 
-    startingVertex_ = "p1-"+to_string(startingTokens);
-    //create all the states using edges and vertex
-    //vertex
-    for(unsigned i = 0; i <= startingTokens; i++){
-      g_.insertVertex("p1-"+to_string(i));
-      g_.insertVertex("p2-"+to_string(i));
-    }
-    //edges
-    //p1-4 points to p2-3 and p2-2
-    //p1-1 points to p2-0
-    //p1-0 points to nothing
-    //
-    for(unsigned j = 0; j <= startingTokens; j++){
-      if(j == 0){
-        //do nothing
-      }
-      else if(j == 1){
-        g_.insertEdge("p1-"+to_string(j),"p2-"+to_string(j-1));
-        g_.setEdgeWeight("p1-"+to_string(j),"p2-"+to_string(j-1), 0);
-        g_.insertEdge("p2-"+to_string(j),"p1-"+to_string(j-1));
-        g_.setEdgeWeight("p2-"+to_string(j),"p1-"+to_string(j-1), 0);
-      }
-      else{
-        g_.insertEdge("p1-"+to_string(j),"p2-"+to_string(j-1));
-        g_.setEdgeWeight("p1-"+to_string(j),"p2-"+to_string(j-1), 0);
-        g_.insertEdge("p1-"+to_string(j),"p2-"+to_string(j-2));
-        g_.setEdgeWeight("p1-"+to_string(j),"p2-"+to_string(j-2), 0);
-        g_.insertEdge("p2-"+to_string(j),"p1-"+to_string(j-1));
-        g_.setEdgeWeight("p2-"+to_string(j),"p1-"+to_string(j-1), 0);
-        g_.insertEdge("p2-"+to_string(j),"p1-"+to_string(j-2));
-        g_.setEdgeWeight("p2-"+to_string(j),"p1-"+to_string(j-2), 0);
-      }
-    }
-}
-
 
 //used for read routes only
 NimLearner::NimLearner(string filename) : g_(true,true){
+  airportDataLoader("testdata/airports.txt");
   std::ifstream infile(filename);
   //std::cout<<filename<<std::endl;
   string line;
@@ -86,7 +33,6 @@ NimLearner::NimLearner(string filename) : g_(true,true){
       //seventh codeshare
       //eighth stops
       //to the end of line equipments
-      //std::cout<<temp<<std::endl;
       if(line.at(i) == ',' || i == line.length()-1){
         if(i == line.length() - 1){
           temp = temp + line.at(i);
@@ -141,14 +87,16 @@ NimLearner::NimLearner(string filename) : g_(true,true){
         temp = temp + line.at(i);
     }
   }
-  //finish reading file 
+
+  // Reading Airports and Routes into Graph
   for(unsigned j = 0; j < airline.size(); j++){
     if(!g_.vertexExists(source[j]))
       g_.insertVertex(source[j]);
     if(!g_.vertexExists(dest[j]))
       g_.insertVertex(dest[j]);
     g_.insertEdge(source[j], dest[j]);
-    g_.setEdgeWeight(source[j], dest[j], 0);
+    int distance = (int) calculateGreatCircle(airports[source[j]].first, airports[source[j]].second, airports[dest[j]].first, airports[dest[j]].second);
+    g_.setEdgeWeight(source[j], dest[j], distance);
   }
   //for test uses
   /*bool ex;
@@ -169,104 +117,76 @@ NimLearner::NimLearner(string filename) : g_(true,true){
 }
 
 /**
- * Plays a random game of Nim, returning the path through the state graph
- * as a vector of `Edge` classes.  The `origin` of the first `Edge` must be
- * the vertex with the label "p1-#", where # is the number of starting
- * tokens.  (For example, in a 10 token game, result[0].origin must be the
- * vertex "p1-10".)
- *
- * @returns A random path through the state space graph.
- */
-std::vector<Edge> NimLearner::playRandomGame() const {
-  vector<Edge> path;
- /* Your code goes here! */
-  //plays a random game
-  int r;
-  Vertex currVertex = startingVertex_;
-
-  while(1){
-    if((g_.getAdjacent(currVertex)).size() == 0){
-      return path;
-    }
-    r = rand()%2;
-    if((g_.getAdjacent(currVertex)).size() == 1){
-      r = 0;
-    }
-    path.push_back(g_.getEdge(currVertex, (g_.getAdjacent(currVertex))[r]));
-    currVertex = (g_.getAdjacent(currVertex))[r];
-  }
-  return path;
-}
-
-/*
- * Updates the edge weights on the graph based on a path through the state
- * tree.
- *
- * If the `path` has Player 1 winning (eg: the last vertex in the path goes
- * to Player 2 with no tokens remaining, or "p2-0", meaning that Player 1
- * took the last token), then all choices made by Player 1 (edges where
- * Player 1 is the source vertex) are rewarded by increasing the edge weight
- * by 1 and all choices made by Player 2 are punished by changing the edge
- * weight by -1.
- *
- * Likewise, if the `path` has Player 2 winning, Player 2 choices are
- * rewarded and Player 1 choices are punished.
- *
- * @param path A path through the a game of Nim to learn.
- */
-void NimLearner::updateEdgeWeights(const std::vector<Edge> & path) {
- /* Your code goes here! */
- int weight;
- if((path[path.size()-1].dest) == "p2-0"){//p1 wins
-   for(unsigned i = 0; i < path.size(); i++){
-     if(i%2 == 0){
-        //choice made by p1
-        weight = g_.getEdgeWeight(path[i].source, path[i].dest);
-        g_.setEdgeWeight(path[i].source, path[i].dest, weight+1);
-     }
-     if(i%2 == 1){
-        //choice made by p2
-        weight = g_.getEdgeWeight(path[i].source, path[i].dest);
-        g_.setEdgeWeight(path[i].source, path[i].dest, weight-1);
-     }
-   }
- }
- if((path[path.size()-1].dest) == "p1-0"){//p2 wins
-   for(unsigned i = 0; i < path.size(); i++){
-     if(i%2 == 0){
-        //choice made by p1
-        weight = g_.getEdgeWeight(path[i].source, path[i].dest);
-        g_.setEdgeWeight(path[i].source, path[i].dest, weight-1);
-     }
-     if(i%2 == 1){
-        //choice made by p2
-        weight = g_.getEdgeWeight(path[i].source, path[i].dest);
-        g_.setEdgeWeight(path[i].source, path[i].dest, weight+1);
-     }
-   }
- }
-}
-
-/**
- * Label the edges as "WIN" or "LOSE" based on a threshold.
- */
-void NimLearner::labelEdgesFromThreshold(int threshold) {
-  for (const Vertex & v : g_.getVertices()) {
-    for (const Vertex & w : g_.getAdjacent(v)) {
-      int weight = g_.getEdgeWeight(v, w);
-
-      // Label all edges with positve weights as "WINPATH"
-      if (weight > threshold)           { g_.setEdgeLabel(v, w, "WIN"); }
-      else if (weight < -1 * threshold) { g_.setEdgeLabel(v, w, "LOSE"); }
-    }
-  }
-}
-
-/**
  * Returns a constant reference to the state space graph.
  *
  * @returns A constant reference to the state space graph.
  */
 const Graph & NimLearner::getGraph() const {
   return g_;
+}
+
+/* This is a great circle distance calculator using haversine formula */
+double NimLearner::calculateGreatCircle(double lat1, double long1, double lat2, double long2) {
+  double radius = 6371;
+  double pi = atan(1) * 4;
+  double phi1 = lat1 * M_PI/180;
+  double phi2 = lat2 * M_PI/180;
+  double del_phi = (lat2-lat1) * M_PI/180;
+  double del_lambda = (long2-long1) * M_PI/180;
+
+  double a = sin(del_phi/2) * sin(del_phi/2) + cos(phi1) * cos(phi2) * sin(del_lambda/2) * sin(del_lambda/2);
+  double c = 2 * atan2(sqrt(a), sqrt(1-a));
+  double d = radius * c;
+
+  return d;
+}
+
+/** A function that loads airport information given and provide lat-long data into a dict */
+void NimLearner::airportDataLoader(string filename) {
+  std::ifstream infile(filename);
+  //std::cout<<filename<<std::endl;
+  string line;
+  string temp;
+  string temp_ap;
+  double temp_lat;
+  double temp_long;
+  int count;
+
+  while (std::getline(infile, line))
+  {
+    //std::cout<<line<<std::endl;
+    count = 0;
+    temp_ap.clear();
+    temp_lat = 0;
+    temp_long = 0;
+    
+    for(unsigned i = 0; i < line.length(); i++){
+      //before first , IATA
+      //before second, lat
+      //end of line, long
+      if(line.at(i) == ',' || i == line.length()-1){
+        if(i == line.length() - 1){
+          temp = temp + line.at(i);
+          temp_long = stod(temp);
+          temp.clear();
+        }
+        else if(count == 0){
+          temp_ap = temp;
+          count++;
+          temp.clear();
+        }
+        else if(count == 1){
+          temp_lat = stod(temp);
+          count++;
+          temp.clear();
+        }
+      }
+      if(line.at(i) != ',' && i != line.length() - 1)
+        temp = temp + line.at(i);
+    }
+    if (!temp_ap.empty()) {
+      std::pair<double, double> latlong(temp_lat, temp_long);
+      airports.insert(std::pair<string, std::pair<double, double>>(temp_ap, latlong));
+    }
+  }
 }

@@ -3,6 +3,7 @@
 #include "edge.h"
 
 int main() {
+
   /*NimLearner nim("地面.txt");
   NimLearner nim1("墙面上.txt");
   NimLearner nim2("墙面右上.txt");
@@ -12,8 +13,8 @@ int main() {
   NimLearner nim6("墙面左下.txt");
   NimLearner nim7("墙面左.txt");
   NimLearner nim8("墙面右.txt");*/
-  NimLearner nim("testdata/test-1.txt");
-  //NimLearner nim("testdata/routes.txt");
+  //NimLearner nim("testdata/test-1.txt");
+  NimLearner nim("testdata/routes.txt");
   
 
   // Play 10,000 games of Nim:
