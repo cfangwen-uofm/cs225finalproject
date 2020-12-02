@@ -97,6 +97,7 @@ NimLearner::NimLearner(string filename) : g_(true,true){
     g_.insertEdge(source[j], dest[j]);
     int distance = (int) calculateGreatCircle(airports[source[j]].first, airports[source[j]].second, airports[dest[j]].first, airports[dest[j]].second);
     g_.setEdgeWeight(source[j], dest[j], distance);
+    g_.setEdgeLabel(source[j], dest[j], airline[j]);
   }
   //for test uses
   /*bool ex;
