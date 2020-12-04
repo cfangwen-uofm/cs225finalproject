@@ -2,6 +2,8 @@
 #include <vector>
 #include "edge.h"
 #include <map>
+#include <iostream>
+#include <fstream>
 
 int main() {
 
@@ -14,8 +16,8 @@ int main() {
   NimLearner nim6("墙面左下.txt");
   NimLearner nim7("墙面左.txt");
   NimLearner nim8("墙面右.txt");*/
-  NimLearner nim("testdata/test-1.txt");
-  // NimLearner nim("testdata/routes.txt");
+  // NimLearner nim("testdata/test-1.txt");
+  NimLearner nim("testdata/routes.txt");
   
 
   // Play 10,000 games of Nim:
@@ -30,12 +32,20 @@ int main() {
   // nim.getGraph().print();
 
   // Save an graph PNG:
-  //std::cout<<"this step wrong"<<std::endl;
+  std::cout<<"# of airports " <<nim.airportLocation.size() <<std::endl;
   //nim.getGraph().savePNG("Out");
-  // nim.shortestpath("DME");
+  
   vector<int> output = nim.shortestpath("DME");
+  std::ofstream myfile;
+  std::cout<<"# of lines " <<output.size() <<std::endl;
+  myfile.open ("example.txt");
   for(size_t i = 0; i < output.size(); i++) {
-    std::cout<<"the distance to " <<nim.source[i].c_str()<<" is "<< output[i]<<endl;
+    // if (nim.airportLocation[i] == "DME") {
+    myfile  <<i<<"the distance to " <<nim.airportLocation[i].c_str()<<" is "<< output[i]<<endl;
+    
+      // std::cout;
+    // }
   }
+  myfile.close();
   return 0;
 }

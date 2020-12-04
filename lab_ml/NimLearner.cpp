@@ -191,6 +191,7 @@ void NimLearner::airportDataLoader(string filename) {
     if (!temp_ap.empty()) {
       std::pair<double, double> latlong(temp_lat, temp_long);
       airports.insert(std::pair<string, std::pair<double, double>>(temp_ap, latlong));
+      airportLocation.push_back(temp_ap);
     }
   }
 }
@@ -216,11 +217,11 @@ std::map<string, int> NimLearner::inverse_map(std::map<int,string> &oriMap){
 
 vector<int> NimLearner::shortestpath(string src) {
   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
-  int V = source.size();
+  int V = airports.size();
   vector<int> dist(V, INF);   
-  std::map<int, string> sourcesMap = makeMap(source);  
+  std::map<int, string> sourcesMap = makeMap(airportLocation);  
   std::map<string, int> reverse = inverse_map(sourcesMap);
-  // pair <int, string> tp = make_pair(0, src);
+
   pq.push(make_pair(0, src)); 
   auto srcIdx = reverse.find(src);
   dist[srcIdx->second] = 0;
