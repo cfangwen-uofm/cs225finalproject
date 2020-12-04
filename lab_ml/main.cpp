@@ -1,6 +1,7 @@
 #include "NimLearner.h"
 #include <vector>
 #include "edge.h"
+#include <map>
 
 int main() {
 
@@ -13,8 +14,8 @@ int main() {
   NimLearner nim6("墙面左下.txt");
   NimLearner nim7("墙面左.txt");
   NimLearner nim8("墙面右.txt");*/
-  //NimLearner nim("testdata/test-1.txt");
   NimLearner nim("testdata/test-1.txt");
+  // NimLearner nim("testdata/routes.txt");
   
 
   // Play 10,000 games of Nim:
@@ -26,11 +27,15 @@ int main() {
   //nim.labelEdgesFromThreshold(gamesPlayed / 50);
 
   // Print textual output of the graph:
-  nim.getGraph().print();
+  // nim.getGraph().print();
 
   // Save an graph PNG:
   //std::cout<<"this step wrong"<<std::endl;
   //nim.getGraph().savePNG("Out");
-  nim.shortestpath("DME");
+  // nim.shortestpath("DME");
+  vector<int> output = nim.shortestpath("DME");
+  for(size_t i = 0; i < output.size(); i++) {
+    std::cout<<"the distance to " <<nim.source[i].c_str()<<" is "<< output[i]<<endl;
+  }
   return 0;
 }

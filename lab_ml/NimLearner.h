@@ -31,14 +31,20 @@ public:
   void airportDataLoader(string filename);
 
   std::map<string, std::pair<double, double>> airports;
-  void shortestpath(string src);
+  //dijkstra algorithm
+  vector<int> shortestpath(string src);
+  //把source的每个点map到一个int
+  std::map<int, string> makeMap(vector<string> src);
+  //为了runtime建的inverse map
+  std::map<string, int> inverse_map(std::map<int,string> &oriMap);
+  //挪了位置
+  std::vector<string> source;
 
 
 private:
   Graph g_;
   std::vector<string> airline;
   std::vector<string> airlineID;
-  std::vector<string> source;
   std::vector<string> sourceID;
   std::vector<string> dest;
   std::vector<string> destID;

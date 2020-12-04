@@ -12,7 +12,7 @@
 #include <queue>
 //#include <sstring>
 typedef pair<int, string> iPair; 
-# define INF 0xFFFFFF
+# define INF 0xFFFFFF 
 using namespace std;
 //used for read routes only
 NimLearner::NimLearner(string filename) : g_(true,true){
@@ -194,18 +194,36 @@ void NimLearner::airportDataLoader(string filename) {
     }
   }
 }
-void NimLearner::shortestpath(string src) {
+
+//helper map function
+std::map<int, string> NimLearner::makeMap(vector<string> src) {
+  std::map<int, string> sourceMap;
+  for (size_t i = 0; i < src.size(); i++) {
+    sourceMap[i] = src[i];
+  }
+  return sourceMap;
+}
+
+//inverse map
+std::map<string, int> NimLearner::inverse_map(std::map<int,string> &oriMap){
+  std::map<string, int> invMap;
+  std::for_each(oriMap.begin(), oriMap.end(), [&invMap] (const std::pair<int, string> &p)
+                {
+                    invMap.insert(std::make_pair(p.second, p.first));
+                });
+    return invMap;
+}
+
+vector<int> NimLearner::shortestpath(string src) {
   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
   int V = source.size();
-  vector<int> dist(V, INF); 
+  vector<int> dist(V, INF);   
+  std::map<int, string> sourcesMap = makeMap(source);  
+  std::map<string, int> reverse = inverse_map(sourcesMap);
   // pair <int, string> tp = make_pair(0, src);
   pq.push(make_pair(0, src)); 
-  for(unsigned long i = 0; i < source.size(); i++) {
-    if (source[i] == src) {
-      dist[i] = 0;
-    }
-  }
-  // dist[src] = 0;
+  auto srcIdx = reverse.find(src);
+  dist[srcIdx->second] = 0;
 
   while (!pq.empty()) 
     { 
@@ -217,9 +235,10 @@ void NimLearner::shortestpath(string src) {
         // in pair) 
         string u = pq.top().second; 
         pq.pop(); 
-  
         // 'i' is used to get all adjacent vertices of a vertex 
         // list< pair<int, string> >::iterator i; 
+        auto uIdx = reverse.find(u);
+
         for (Vertex ver : g_.getAdjacent(u)) 
         { 
             // Get vertex label and weight of current adjacent 
@@ -227,27 +246,15 @@ void NimLearner::shortestpath(string src) {
             string v = ver;
             int weight = g_.getEdgeWeight(u,v);
             //  If there is shorted path to v through u. 
-            unsigned long j = 0;
-            for (j = 0; j <source.size(); j++) {
-              if (source[j] == v) {
-                break;
-              }
-            }
-            unsigned long k = 0;
-            for (k = 0; k<source.size(); k++) {
-              if (source[k] == u){
-                break;
-              }
-            }
-            if (dist[j] > dist[k] + weight) 
+            auto vIdx = reverse.find(v);
+
+            if (dist[vIdx->second] > dist[uIdx->second] + weight) 
             { 
                 // Uupdating distance of v 
-                dist[j] = dist[k] + weight; 
-                pq.push(make_pair(dist[j], v)); 
+                dist[vIdx->second] = dist[uIdx->second] + weight; 
+                pq.push(make_pair(dist[vIdx->second], v)); 
             } 
         } 
     }
-        printf("Vertex   Distance from Source\n"); 
-    for (int i = 0; i < V; ++i) 
-        printf("%d \t\t %d\n", i, dist[i]);   
+  return dist;
 }
