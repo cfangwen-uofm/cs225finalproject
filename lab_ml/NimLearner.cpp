@@ -9,8 +9,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <algorithm>
+#include <queue>
 //#include <sstring>
-
+typedef pair<int, string> iPair; 
+# define INF 0xFFFFFF
+using namespace std;
 //used for read routes only
 NimLearner::NimLearner(string filename) : g_(true,true){
   airportDataLoader("testdata/airports.txt");
@@ -190,4 +193,61 @@ void NimLearner::airportDataLoader(string filename) {
       airports.insert(std::pair<string, std::pair<double, double>>(temp_ap, latlong));
     }
   }
+}
+void NimLearner::shortestpath(string src) {
+  priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
+  int V = source.size();
+  vector<int> dist(V, INF); 
+  // pair <int, string> tp = make_pair(0, src);
+  pq.push(make_pair(0, src)); 
+  for(unsigned long i = 0; i < source.size(); i++) {
+    if (source[i] == src) {
+      dist[i] = 0;
+    }
+  }
+  // dist[src] = 0;
+
+  while (!pq.empty()) 
+    { 
+        // The first vertex in pair is the minimum distance 
+        // vertex, extract it from priority queue. 
+        // vertex label is stored in second of pair (it 
+        // has to be done this way to keep the vertices 
+        // sorted distance (distance must be first item 
+        // in pair) 
+        string u = pq.top().second; 
+        pq.pop(); 
+  
+        // 'i' is used to get all adjacent vertices of a vertex 
+        // list< pair<int, string> >::iterator i; 
+        for (Vertex ver : g_.getAdjacent(u)) 
+        { 
+            // Get vertex label and weight of current adjacent 
+            // of u. 
+            string v = ver;
+            int weight = g_.getEdgeWeight(u,v);
+            //  If there is shorted path to v through u. 
+            unsigned long j = 0;
+            for (j = 0; j <source.size(); j++) {
+              if (source[j] == v) {
+                break;
+              }
+            }
+            unsigned long k = 0;
+            for (k = 0; k<source.size(); k++) {
+              if (source[k] == u){
+                break;
+              }
+            }
+            if (dist[j] > dist[k] + weight) 
+            { 
+                // Uupdating distance of v 
+                dist[j] = dist[k] + weight; 
+                pq.push(make_pair(dist[j], v)); 
+            } 
+        } 
+    }
+        printf("Vertex   Distance from Source\n"); 
+    for (int i = 0; i < V; ++i) 
+        printf("%d \t\t %d\n", i, dist[i]);   
 }

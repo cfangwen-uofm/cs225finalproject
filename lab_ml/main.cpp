@@ -14,7 +14,7 @@ int main() {
   NimLearner nim7("墙面左.txt");
   NimLearner nim8("墙面右.txt");*/
   //NimLearner nim("testdata/test-1.txt");
-  NimLearner nim("testdata/routes.txt");
+  NimLearner nim("testdata/test-1.txt");
   
 
   // Play 10,000 games of Nim:
@@ -31,6 +31,6 @@ int main() {
   // Save an graph PNG:
   //std::cout<<"this step wrong"<<std::endl;
   //nim.getGraph().savePNG("Out");
-
+  nim.shortestpath("DME");
   return 0;
 }
