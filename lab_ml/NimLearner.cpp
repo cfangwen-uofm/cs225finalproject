@@ -14,6 +14,7 @@
 typedef pair<int, string> iPair; 
 # define INF 0xFFFFFF 
 using namespace std;
+
 //used for read routes only
 NimLearner::NimLearner(string filename) : g_(true,true){
   airportDataLoader("testdata/airports.txt");
@@ -217,7 +218,70 @@ std::map<string, int> NimLearner::inverse_map(std::map<int,string> &oriMap){
 
 //find the shortest path using dijkstra algorithm. 
 //src is the starting airport.
-vector<int> NimLearner::shortestpath(string src) {
+// vector<int> NimLearner::shortestpath(string src) {
+//   //initialize a minimal heap
+//   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
+//   //size of vertices are the number of airports
+//   int V = airportLocation.size();
+//   //dist stores the distance from the src to the current airport
+//   vector<int> dist(V, INF); 
+//   //prevStop stores the previous airport in the shortest path
+//   vector<Vertex> prevStop(V, "");  
+//   //T stores the shortest path, it is weighted
+//   Graph T(true);
+//   //create a map to get faster query speed
+//   std::map<int, string> airportmap = makeMap(airportLocation);  
+//   //use inverse map to get the index given the airport
+//   std::map<string, int> revAirportMap = inverse_map(airportmap);
+
+//   pq.push(make_pair(0, src)); 
+//   auto srcIdx = revAirportMap.find(src);
+//   dist[srcIdx->second] = 0;
+
+//   while (!pq.empty()) 
+//     { 
+//       // The first vertex in pair is the minimum distance 
+//       // vertex, extract it from priority queue. 
+//       // vertex label is stored in second of pair (it 
+//       // has to be done this way to keep the vertices 
+//       // sorted distance (distance must be first item 
+//       // in pair) 
+//       string u = pq.top().second; 
+//       T.insertVertex(u);
+//       pq.pop(); 
+      
+//       auto uIdx = revAirportMap.find(u);
+
+//       for (Vertex ver : g_.getAdjacent(u)) 
+//       { 
+//         if (!(T.vertexExists(ver))) {
+//           // Get vertex label and weight of current adjacent of u 
+//           string v = ver;
+//           T.insertVertex(v);
+//           int weight = g_.getEdgeWeight(u,v);
+//           T.insertEdge(u,v);
+//           T.setEdgeWeight(u,v,weight);
+//           T.setEdgeLabel(u,v,to_string(weight));
+//           //  If there is shorted path to v through u. 
+//           auto vIdx = revAirportMap.find(v);
+
+//           if (dist[vIdx->second] > dist[uIdx->second] + weight) 
+//           { 
+//               // Updating distance of v 
+//               dist[vIdx->second] = dist[uIdx->second] + weight; 
+//               pq.push(make_pair(dist[vIdx->second], v)); 
+//               prevStop[vIdx->second] = u;
+//           } 
+//         }
+//       } 
+//     }
+//     T.print();
+//   return dist;
+// }
+string NimLearner::dijkstra(string src, string dest){
+  // string tmp = src;
+  // src = dest;
+  // dest = tmp;
   //initialize a minimal heap
   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
   //size of vertices are the number of airports
@@ -229,12 +293,12 @@ vector<int> NimLearner::shortestpath(string src) {
   //T stores the shortest path, it is weighted
   Graph T(true);
   //create a map to get faster query speed
-  std::map<int, string> sourcesMap = makeMap(airportLocation);  
+  std::map<int, string> airportmap = makeMap(airportLocation);  
   //use inverse map to get the index given the airport
-  std::map<string, int> reverse = inverse_map(sourcesMap);
+  std::map<string, int> revAirportMap = inverse_map(airportmap);
 
   pq.push(make_pair(0, src)); 
-  auto srcIdx = reverse.find(src);
+  auto srcIdx = revAirportMap.find(src);
   dist[srcIdx->second] = 0;
 
   while (!pq.empty()) 
@@ -249,7 +313,7 @@ vector<int> NimLearner::shortestpath(string src) {
       T.insertVertex(u);
       pq.pop(); 
       
-      auto uIdx = reverse.find(u);
+      auto uIdx = revAirportMap.find(u);
 
       for (Vertex ver : g_.getAdjacent(u)) 
       { 
@@ -262,7 +326,7 @@ vector<int> NimLearner::shortestpath(string src) {
           T.setEdgeWeight(u,v,weight);
           T.setEdgeLabel(u,v,to_string(weight));
           //  If there is shorted path to v through u. 
-          auto vIdx = reverse.find(v);
+          auto vIdx = revAirportMap.find(v);
 
           if (dist[vIdx->second] > dist[uIdx->second] + weight) 
           { 
@@ -272,8 +336,26 @@ vector<int> NimLearner::shortestpath(string src) {
               prevStop[vIdx->second] = u;
           } 
         }
-      } 
+      }
     }
-    T.print();
-  return dist;
+    string ret = dest;
+    auto startIdx = revAirportMap.find(src);
+    auto destIdx = revAirportMap.find(dest);
+    //can't go from A to B
+    if (dist[destIdx->second] == INF) {
+      return "no path exists";
+    }
+
+    string destPrev = dest;
+    while (destPrev != src) {
+      auto destprevIdx = revAirportMap.find(destPrev);
+      string temp = prevStop[destprevIdx->second];
+      ret.append(" <- ");
+      ret.append(temp);
+      destPrev = temp;
+    }
+    ret.append(" distance is ");
+    ret.append(to_string(dist[destIdx->second]));
+    ret.append(" km");
+    return ret;
 }

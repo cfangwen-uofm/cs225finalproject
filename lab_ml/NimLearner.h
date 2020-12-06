@@ -34,6 +34,8 @@ public:
   std::vector<string> airportLocation;
   //dijkstra algorithm
   vector<int> shortestpath(string src);
+  //print shortestpath
+  string dijkstra(string start, string dest);
   //把source的每个点map到一个int
   std::map<int, string> makeMap(vector<string> src);
   //为了runtime建的inverse map
@@ -53,4 +55,6 @@ private:
   std::vector<string> stops;
   std::vector<string> equip;
   std::vector<string> diff_airline;
+  
+
 };
