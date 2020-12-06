@@ -95,14 +95,12 @@ NimLearner::NimLearner(string filename) : g_(true,true){
 
   // Reading Airports and Routes into Graph
   for(unsigned j = 0; j < airline.size(); j++){
-    if(!g_.vertexExists(source[j]))
-      g_.insertVertex(source[j]);
-    if(!g_.vertexExists(dest[j]))
-      g_.insertVertex(dest[j]);
-    g_.insertEdge(source[j], dest[j]);
-    int distance = (int) calculateGreatCircle(airports[source[j]].first, airports[source[j]].second, airports[dest[j]].first, airports[dest[j]].second);
-    g_.setEdgeWeight(source[j], dest[j], distance);
-    g_.setEdgeLabel(source[j], dest[j], airline[j]);
+    if(g_.vertexExists(source[j]) && g_.vertexExists(dest[j])) {
+      int distance = (int) calculateGreatCircle(airports.at(source[j]).first, airports.at(source[j]).second, airports.at(dest[j]).first, airports.at(dest[j]).second);
+      g_.insertEdge(source[j], dest[j]);
+      g_.setEdgeWeight(source[j], dest[j], distance);
+      g_.setEdgeLabel(source[j], dest[j], airline[j]);
+    }
   }
   //for test uses
   /*bool ex;
@@ -193,6 +191,7 @@ void NimLearner::airportDataLoader(string filename) {
     if (!temp_ap.empty()) {
       std::pair<double, double> latlong(temp_lat, temp_long);
       airports.insert(std::pair<string, std::pair<double, double>>(temp_ap, latlong));
+      g_.insertVertex(temp_ap);
       airportLocation.push_back(temp_ap);
     }
   }

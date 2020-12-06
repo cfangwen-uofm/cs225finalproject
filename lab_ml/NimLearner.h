@@ -30,7 +30,6 @@ public:
 
   void airportDataLoader(string filename);
 
-  std::map<string, std::pair<double, double>> airports;
   //dijkstra algorithm scratch
   // vector<int> shortestpath(string src);
   //print shortestpath
@@ -42,6 +41,7 @@ public:
 
 private:
   Graph g_;
+  std::map<string, std::pair<double, double>> airports;
   std::vector<string> airline;
   std::vector<string> airlineID;
   std::vector<string> source;

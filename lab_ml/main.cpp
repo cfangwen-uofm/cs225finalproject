@@ -34,8 +34,9 @@ int main() {
   // nim.getGraph().print();
 
   // Save an graph PNG:
-  // std::cout<<"# of airports " <<nim.airports.size() <<std::endl;
-  // std::cout<<"# of airports " <<nim.airportLocation.size() <<std::endl;
+  //std::cout<<"# of airports " << nim.g_.getVertices().size() <<std::endl;
+  //std::cout<<"# of airports " <<nim.airports.size() <<std::endl;
+  //std::cout<<"# of airports " <<nim.airportLocation.size() <<std::endl;
   //nim.getGraph().savePNG("Out");
   
   // vector<int> output = nim.shortestpath("AER");
