@@ -215,11 +215,22 @@ std::map<string, int> NimLearner::inverse_map(std::map<int,string> &oriMap){
     return invMap;
 }
 
+//find the shortest path using dijkstra algorithm. 
+//src is the starting airport.
 vector<int> NimLearner::shortestpath(string src) {
+  //initialize a minimal heap
   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
-  int V = airports.size();
-  vector<int> dist(V, INF);   
+  //size of vertices are the number of airports
+  int V = airportLocation.size();
+  //dist stores the distance from the src to the current airport
+  vector<int> dist(V, INF); 
+  //prevStop stores the previous airport in the shortest path
+  vector<Vertex> prevStop(V, "");  
+  //T stores the shortest path, it is weighted
+  Graph T(true);
+  //create a map to get faster query speed
   std::map<int, string> sourcesMap = makeMap(airportLocation);  
+  //use inverse map to get the index given the airport
   std::map<string, int> reverse = inverse_map(sourcesMap);
 
   pq.push(make_pair(0, src)); 
@@ -228,34 +239,41 @@ vector<int> NimLearner::shortestpath(string src) {
 
   while (!pq.empty()) 
     { 
-        // The first vertex in pair is the minimum distance 
-        // vertex, extract it from priority queue. 
-        // vertex label is stored in second of pair (it 
-        // has to be done this way to keep the vertices 
-        // sorted distance (distance must be first item 
-        // in pair) 
-        string u = pq.top().second; 
-        pq.pop(); 
-        // 'i' is used to get all adjacent vertices of a vertex 
-        // list< pair<int, string> >::iterator i; 
-        auto uIdx = reverse.find(u);
+      // The first vertex in pair is the minimum distance 
+      // vertex, extract it from priority queue. 
+      // vertex label is stored in second of pair (it 
+      // has to be done this way to keep the vertices 
+      // sorted distance (distance must be first item 
+      // in pair) 
+      string u = pq.top().second; 
+      T.insertVertex(u);
+      pq.pop(); 
+      
+      auto uIdx = reverse.find(u);
 
-        for (Vertex ver : g_.getAdjacent(u)) 
-        { 
-            // Get vertex label and weight of current adjacent 
-            // of u. 
-            string v = ver;
-            int weight = g_.getEdgeWeight(u,v);
-            //  If there is shorted path to v through u. 
-            auto vIdx = reverse.find(v);
+      for (Vertex ver : g_.getAdjacent(u)) 
+      { 
+        if (!(T.vertexExists(ver))) {
+          // Get vertex label and weight of current adjacent of u 
+          string v = ver;
+          T.insertVertex(v);
+          int weight = g_.getEdgeWeight(u,v);
+          T.insertEdge(u,v);
+          T.setEdgeWeight(u,v,weight);
+          T.setEdgeLabel(u,v,to_string(weight));
+          //  If there is shorted path to v through u. 
+          auto vIdx = reverse.find(v);
 
-            if (dist[vIdx->second] > dist[uIdx->second] + weight) 
-            { 
-                // Uupdating distance of v 
-                dist[vIdx->second] = dist[uIdx->second] + weight; 
-                pq.push(make_pair(dist[vIdx->second], v)); 
-            } 
-        } 
+          if (dist[vIdx->second] > dist[uIdx->second] + weight) 
+          { 
+              // Updating distance of v 
+              dist[vIdx->second] = dist[uIdx->second] + weight; 
+              pq.push(make_pair(dist[vIdx->second], v)); 
+              prevStop[vIdx->second] = u;
+          } 
+        }
+      } 
     }
+    T.print();
   return dist;
 }

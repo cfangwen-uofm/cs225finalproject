@@ -40,6 +40,7 @@ public:
   std::map<string, int> inverse_map(std::map<int,string> &oriMap);
 
 
+
 private:
   Graph g_;
   std::vector<string> airline;
@@ -52,5 +53,4 @@ private:
   std::vector<string> stops;
   std::vector<string> equip;
   std::vector<string> diff_airline;
-  
 };
