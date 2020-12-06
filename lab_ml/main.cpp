@@ -17,6 +17,7 @@ int main() {
   NimLearner nim7("墙面左.txt");
   NimLearner nim8("墙面右.txt");*/
   // NimLearner nim("testdata/test-1.txt");
+  // NimLearner nim("testdata/test-2-dup.txt");
   NimLearner nim("testdata/routes.txt");
   // NimLearner nim("testdata/routes-copy.txt");
   
@@ -33,6 +34,7 @@ int main() {
   // nim.getGraph().print();
 
   // Save an graph PNG:
+  // std::cout<<"# of airports " <<nim.airports.size() <<std::endl;
   // std::cout<<"# of airports " <<nim.airportLocation.size() <<std::endl;
   //nim.getGraph().savePNG("Out");
   
@@ -46,6 +48,6 @@ int main() {
   //   myfile  <<i<<"the distance to " <<nim.airportLocation[i].c_str()<<" is "<< output[i]<<endl;
   // }
   // myfile.close();
-  std::cout<<nim.dijkstra("ABD", "CMI")<<std::endl;
+  std::cout<<nim.dijkstra("ABD","CMI")<<std::endl;
   return 0;
 }
