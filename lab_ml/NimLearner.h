@@ -38,6 +38,7 @@ public:
   std::map<int, string> makeMap(vector<string> src);
   //为了runtime建的inverse map
   std::map<string, int> inverse_map(std::map<int,string> &oriMap);
+  string aStar(string src, string dest, vector<string> forbidden);
 
 private:
   Graph g_;
@@ -53,6 +54,7 @@ private:
   std::vector<string> equip;
   std::vector<string> diff_airline;
   //all the location of the airport
+  std::vector<string> forbidden;
   std::vector<string> airportLocation;
 
 };
