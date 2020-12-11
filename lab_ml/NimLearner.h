@@ -30,6 +30,10 @@ public:
 
   void airportDataLoader(string filename);
 
+  vector<string> destAfterMutipleTransfer (string initial_ap, int num_of_times);
+
+  vector<string> finalDestAfterMutipleTransfer (string initial_ap, int num_of_times);
+
   //dijkstra algorithm scratch
   // vector<int> shortestpath(string src);
   //print shortestpath

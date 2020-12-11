@@ -11,22 +11,25 @@
 #include <algorithm>
 #include <queue>
 #include <stack>
-//#include <sstring>
 typedef pair<int, string> iPair; 
 # define INF 0xFFFFFF
 using namespace std;
 
-//used for read routes only
+/**
+ * Initializes a graph with airports in database and connect them with routes given.
+ */
 NimLearner::NimLearner(string filename) : g_(true,true){
+  // Load Airport data into graph, a dictionary, and a list
   airportDataLoader("testdata/airports.txt");
+
+  // Load routes into edges between vertexs
   std::ifstream infile(filename);
-  //std::cout<<filename<<std::endl;
+  // Initialize temporary varibles for recording data
   string line;
   string temp;
   int count;
   while (std::getline(infile, line))
   {
-    //std::cout<<line<<std::endl;
     count = 0;
     for(unsigned i = 0; i < line.length(); i++){
       //before first , airline
@@ -102,22 +105,7 @@ NimLearner::NimLearner(string filename) : g_(true,true){
       g_.setEdgeLabel(source[j], dest[j], airline[j]);
     }
   }
-  //for test uses
-  /*bool ex;
-  for(unsigned k = 0; k < equip.size(); k++){
-    ex = false;
-    //std::cout<<equip[k]<<std::endl;
-    for(unsigned n = 0; n < diff_airline.size(); n++){
-      if(equip[k] == diff_airline[n]){
-        ex = true;
-      }
-    }
-    if(ex == false){
-      diff_airline.push_back(equip[k]);
-      std::cout<<equip[k]<<std::endl;
-    }
-  }
-  std::cout<<diff_airline.size()<<std::endl;*/
+
 }
 
 /**
@@ -129,7 +117,90 @@ const Graph & NimLearner::getGraph() const {
   return g_;
 }
 
-/* This is a great circle distance calculator using haversine formula */
+
+/**
+ * Returns total airports in a vector we can reach after a indicated number of transfer.
+ * 
+ * If we have already reached the maximum destinations we can reach before the indicated number,
+ * we return all possible destinations
+ * 
+ * This functions uses BFS traversal
+ *
+ * @returns total airports in a vector we can reach after a indicated number of transfer.
+ */
+vector<string> NimLearner::destAfterMutipleTransfer (string initial_ap, int num_of_times) {
+  queue<string> q;
+  map<string, int> visited;
+  vector<string> toReturn;
+  q.push(initial_ap);
+  visited.insert(std::pair<string, int>(initial_ap, 1));
+
+  int count = 0;
+
+  while (!q.empty() && (count - 1) != num_of_times) {
+    count++;
+    string current_ap = q.front();
+    q.pop();
+    vector<string> neighbors = g_.getAdjacent(current_ap);
+    for (size_t i = 0; i < neighbors.size(); i++) {
+      if (visited[neighbors[i]] != 1) {
+        visited[neighbors[i]] = 1;
+        q.push(neighbors[i]);
+        toReturn.push_back(neighbors[i]);
+      }
+    }
+  }
+
+  return toReturn;
+}
+
+
+/**
+ * Returns the final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer.
+ * 
+ * If we have already reached the maximum destinations we can reach before the indicated number,
+ * we return all possible destinations
+ * 
+ * This functions uses BFS traversal
+ *
+ * @returns total final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer.
+ */
+vector<string> NimLearner::finalDestAfterMutipleTransfer (string initial_ap, int num_of_times) {
+  queue<string> q;
+  map<string, int> visited;
+  vector<string> toReturn;
+  q.push(initial_ap);
+  visited.insert(std::pair<string, int>(initial_ap, 1));
+
+  int count = 0;
+
+  while (!q.empty()) {
+    count++;
+    string current_ap = q.front();
+    q.pop();
+    vector<string> neighbors = g_.getAdjacent(current_ap);
+    for (size_t i = 0; i < neighbors.size(); i++) {
+      if (visited[neighbors[i]] != 1) {
+        visited[neighbors[i]] = 1;
+        q.push(neighbors[i]);
+        if (count - 1 == num_of_times) {
+          toReturn.push_back(neighbors[i]);
+        }
+      }
+    }
+    if (count - 1 == num_of_times) {
+      break;
+    }
+  }
+
+  return toReturn;
+}
+
+/**
+ * Returns a distance between two locations (in Lat Long) on the earth using Haversine formula.
+ *
+ * @returns A distance between two locations on the earth.
+ */
 double NimLearner::calculateGreatCircle(double lat1, double long1, double lat2, double long2) {
   double radius = 6371;
   double pi = atan(1) * 4;
@@ -145,10 +216,13 @@ double NimLearner::calculateGreatCircle(double lat1, double long1, double lat2, 
   return d;
 }
 
-/** A function that loads airport information given and provide lat-long data into a dict */
+/**
+ * Creates a dictionary, vertexs in graph, and a list of airport locations (in Lat and Long) from data.
+ * 
+ * Helper function for class constructor
+ */
 void NimLearner::airportDataLoader(string filename) {
   std::ifstream infile(filename);
-  //std::cout<<filename<<std::endl;
   string line;
   string temp;
   string temp_ap;
@@ -158,40 +232,45 @@ void NimLearner::airportDataLoader(string filename) {
 
   while (std::getline(infile, line))
   {
-    //std::cout<<line<<std::endl;
+    // Initialize temporary varibles for recording data
     count = 0;
     temp_ap.clear();
     temp_lat = 0;
     temp_long = 0;
     
-    for(unsigned i = 0; i < line.length(); i++){
-      //before first , IATA
+    for (unsigned i = 0; i < line.length(); i++){
+      //before first , IATA Airport Code
       //before second, lat
       //end of line, long
-      if(line.at(i) == ',' || i == line.length()-1){
-        if(i == line.length() - 1){
+      if (line.at(i) == ',' || i == line.length()-1) {
+        if (i == line.length() - 1) {
           temp = temp + line.at(i);
           temp_long = stod(temp);
           temp.clear();
         }
-        else if(count == 0){
+        else if (count == 0) {
           temp_ap = temp;
           count++;
           temp.clear();
         }
-        else if(count == 1){
+        else if (count == 1) {
           temp_lat = stod(temp);
           count++;
           temp.clear();
         }
       }
-      if(line.at(i) != ',' && i != line.length() - 1)
+      if (line.at(i) != ',' && i != line.length() - 1) {
         temp = temp + line.at(i);
+      }
     }
     if (!temp_ap.empty()) {
+      // Setup latlong variable describing latitude and longitude
       std::pair<double, double> latlong(temp_lat, temp_long);
+      // Insert into Dictionary
       airports.insert(std::pair<string, std::pair<double, double>>(temp_ap, latlong));
+      // Insert into graph
       g_.insertVertex(temp_ap);
+      // Insert into a vector
       airportLocation.push_back(temp_ap);
     }
   }
@@ -215,69 +294,6 @@ std::map<string, int> NimLearner::inverse_map(std::map<int,string> &oriMap){
                 });
     return invMap;
 }
-
-// //find the shortest path using dijkstra algorithm. 
-// //src is the starting airport.
-// vector<int> NimLearner::shortestpath(string src) {
-//   //initialize a minimal heap
-//   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
-//   //size of vertices are the number of airports
-//   int V = airportLocation.size();
-//   //dist stores the distance from the src to the current airport
-//   vector<int> dist(V, INF); 
-//   //prevStop stores the previous airport in the shortest path
-//   vector<Vertex> prevStop(V, "");  
-//   //T stores the shortest path, it is weighted
-//   Graph T(true, true);
-//   //create a map to get faster query speed
-//   std::map<int, string> airportmap = makeMap(airportLocation);  
-//   //use inverse map to get the index given the airport
-//   std::map<string, int> revAirportMap = inverse_map(airportmap);
-
-//   pq.push(make_pair(0, src)); 
-//   auto srcIdx = revAirportMap.find(src);
-//   dist[srcIdx->second] = 0;
-
-//   while (!pq.empty()) 
-//     { 
-//       // The first vertex in pair is the minimum distance 
-//       // vertex, extract it from priority queue. 
-//       // vertex label is stored in second of pair (it 
-//       // has to be done this way to keep the vertices 
-//       // sorted distance (distance must be first item 
-//       // in pair) 
-//       string u = pq.top().second; 
-//       T.insertVertex(u);
-//       pq.pop(); 
-      
-//       auto uIdx = revAirportMap.find(u);
-
-//       for (Vertex ver : g_.getAdjacent(u)) 
-//       { 
-//         // if (!(T.vertexExists(ver))) {
-//           // Get vertex label and weight of current adjacent of u 
-//           string v = ver;
-//           T.insertVertex(v);
-//           int weight = g_.getEdgeWeight(u,v);
-//           T.insertEdge(u,v);
-//           T.setEdgeWeight(u,v,weight);
-//           T.setEdgeLabel(u,v,to_string(weight));
-//           //  If there is shorted path to v through u. 
-//           auto vIdx = revAirportMap.find(v);
-
-//           if (dist[vIdx->second] > dist[uIdx->second] + weight) 
-//           { 
-//               // Updating distance of v 
-//               dist[vIdx->second] = dist[uIdx->second] + weight; 
-//               pq.push(make_pair(dist[vIdx->second], v)); 
-//               prevStop[vIdx->second] = u;
-//           } 
-//         }
-//       // } 
-//     }
-//     T.print();
-//   return dist;
-// }
 
 /*
 Find the shortest path between two airports, and get the distance between them

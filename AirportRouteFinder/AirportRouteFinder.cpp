@@ -17,6 +17,8 @@ using namespace std;
 
 /**
  * Initializes a graph with airports in database and connect them with routes given.
+ * 
+ * @param filename: filname for route data
  */
 AirportRouteFinder::AirportRouteFinder(string filename) : g_(true,true){
   // Load Airport data into graph, a dictionary, and a list
@@ -30,15 +32,9 @@ AirportRouteFinder::AirportRouteFinder(string filename) : g_(true,true){
   int count;
 
   std::vector<string> airline;
-  std::vector<string> airlineID;
   std::vector<string> source;
-  std::vector<string> sourceID;
   std::vector<string> dest;
-  std::vector<string> destID;
-  std::vector<string> codeshare;
-  std::vector<string> stops;
   std::vector<string> equip;
-  std::vector<string> diff_airline;
   
   while (std::getline(infile, line))
   {
@@ -65,7 +61,6 @@ AirportRouteFinder::AirportRouteFinder(string filename) : g_(true,true){
           temp.clear();
         }
         else if(count == 1){
-          airlineID.push_back(temp);
           count++;
           temp.clear();
         }
@@ -75,7 +70,6 @@ AirportRouteFinder::AirportRouteFinder(string filename) : g_(true,true){
           temp.clear();
         }
         else if(count == 3){
-          sourceID.push_back(temp);
           count++;
           temp.clear();
         }
@@ -85,7 +79,6 @@ AirportRouteFinder::AirportRouteFinder(string filename) : g_(true,true){
           temp.clear();
         }
         else if(count == 5){
-          destID.push_back(temp);
           count++;
           temp.clear();
         }
@@ -93,12 +86,10 @@ AirportRouteFinder::AirportRouteFinder(string filename) : g_(true,true){
           if(temp.length() == 0){
             temp = "N";
           }
-          codeshare.push_back(temp);
           count++;
           temp.clear();
         }
         else if(count == 7){
-          stops.push_back(temp);
           count++;
           temp.clear();
         }
@@ -136,16 +127,26 @@ const Graph & AirportRouteFinder::getGraph() const {
  * If we have already reached the maximum destinations we can reach before the indicated number,
  * we return all possible destinations
  * 
- * This functions uses BFS traversal
+ * This functions uses BFS traversal.
+ * 
+ * @param initial_ap: initial airport for traversal
+ * @param num_of_times: number of times of transfer
  *
- * @returns total airports in a vector we can reach after a indicated number of transfer.
+ * @returns total airports in a vector we can reach after a indicated number of transfer and transfer times together in a pair.
  */
-vector<string> AirportRouteFinder::destAfterMutipleTransfer (string initial_ap, int num_of_times) {
+pair<vector<string>, int> AirportRouteFinder::destAfterMutipleTransfer (string initial_ap, int num_of_times) {
+  // Check for invalid input
+  if ( airports.find(initial_ap) == airports.end() ) {
+    return pair<vector<string>, int>(vector<string>(), num_of_times);
+  }
+
+  // Traversal
   queue<string> q;
   map<string, int> visited;
   vector<string> toReturn;
   q.push(initial_ap);
   visited.insert(std::pair<string, int>(initial_ap, 1));
+  toReturn.push_back(initial_ap); // Add to airports we can reach
 
   int count = 0;
 
@@ -158,12 +159,12 @@ vector<string> AirportRouteFinder::destAfterMutipleTransfer (string initial_ap, 
       if (visited[neighbors[i]] != 1) {
         visited[neighbors[i]] = 1;
         q.push(neighbors[i]);
-        toReturn.push_back(neighbors[i]);
+        toReturn.push_back(neighbors[i]); // Add to airports we can reach
       }
     }
   }
 
-  return toReturn;
+  return pair<vector<string>, int>(toReturn, num_of_times);
 }
 
 
@@ -173,11 +174,20 @@ vector<string> AirportRouteFinder::destAfterMutipleTransfer (string initial_ap, 
  * If we have already reached the maximum destinations we can reach before the indicated number,
  * we return all possible destinations
  * 
- * This functions uses BFS traversal
+ * This functions uses BFS traversal.
+ * 
+ * @param initial_ap: initial airport for traversal
+ * @param num_of_times: number of times of transfer
  *
- * @returns total final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer.
+ * @returns total final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer and transfer times together in a pair.
  */
-vector<string> AirportRouteFinder::finalDestAfterMutipleTransfer (string initial_ap, int num_of_times) {
+pair<vector<string>, int> AirportRouteFinder::finalDestAfterMutipleTransfer (string initial_ap, int num_of_times) {
+  // Check for invalid input
+  if ( airports.find(initial_ap) == airports.end() ) {
+    return pair<vector<string>, int>(vector<string>(), num_of_times);
+  }
+  
+  // Traversal
   queue<string> q;
   map<string, int> visited;
   vector<string> toReturn;
@@ -196,7 +206,7 @@ vector<string> AirportRouteFinder::finalDestAfterMutipleTransfer (string initial
         visited[neighbors[i]] = 1;
         q.push(neighbors[i]);
         if (count - 1 == num_of_times) {
-          toReturn.push_back(neighbors[i]);
+          toReturn.push_back(neighbors[i]); // Add to final airports we can reach
         }
       }
     }
@@ -205,7 +215,114 @@ vector<string> AirportRouteFinder::finalDestAfterMutipleTransfer (string initial
     }
   }
 
-  return toReturn;
+  return pair<vector<string>, int>(toReturn, num_of_times);
+}
+
+/**
+ * Prints the result of destAfterMutipleTransfer.
+ * Prints in cout stream and saves into a file
+ */
+void AirportRouteFinder::printBFS1(pair<vector<string>, int> & aps) {
+  // String showing information
+  string ret;
+
+  ret.append("Total airports we can reach after ");
+  int num_of_times = aps.second;
+  ret.append(to_string(num_of_times));
+  ret.append(" times of transfer: ");
+
+  // Looping
+  for (size_t i = 0; i < aps.first.size() - 1; i++) {
+    ret.append(aps.first[i]);
+    ret.append(", ");
+  }
+  ret.append(aps.first[aps.first.size() - 1]);
+  cout << ret << endl;
+  
+  std::ofstream file("destAfterMutipleTransfer_result.txt");
+  file << ret;
+}
+
+/**
+ * Prints the result of finalDestAfterMutipleTransfer.
+ * Prints in cout stream and saves into a file
+ */
+void AirportRouteFinder::printBFS2(pair<vector<string>, int> & aps) {
+  // String showing information
+  string ret;
+
+  ret.append("Final airports we can reach after ");
+  int num_of_times = aps.second;
+  ret.append(to_string(num_of_times));
+  ret.append(" times of transfer: ");
+
+  // Looping
+  for (size_t i = 0; i < aps.first.size() - 1; i++) {
+    ret.append(aps.first[i]);
+    ret.append(", ");
+  }
+  ret.append(aps.first[aps.first.size() - 1]);
+  cout << ret << endl;
+  
+  std::ofstream file("finalDestAfterMutipleTransfer_result.txt");
+  file << ret;
+}
+
+/**
+ * Prints the result of path found by dijkstra.
+ * Prints in cout stream and saves into a file
+ */
+void AirportRouteFinder::printPath1(pair<vector<string>, int> & pathdata) {
+  // String showing information
+  string ret;
+
+  ret.append("Shortest Path, with a distance of ");
+  ret.append(to_string(pathdata.second));
+  ret.append(" km, is: ");
+
+  for (size_t i = 0; i < pathdata.first.size() - 1; i++) {
+    ret.append(pathdata.first[i]);
+    ret.append(" -> ");
+  }
+  ret.append(pathdata.first[pathdata.first.size() - 1]);
+  ret.append(". ");
+
+  cout << ret << endl;
+  
+  std::ofstream file("dijkstra_result.txt");
+  file << ret;
+}
+
+/**
+ * Prints the result of path found by aStar.
+ * Prints in cout stream and saves into a file
+ */
+void AirportRouteFinder::printPath2(pair<vector<string>, int> & pathdata, vector<string> & forbidden) {
+  // String showing information
+  string ret;
+
+  ret.append("Shortest Path, with a distance of ");
+  ret.append(to_string(pathdata.second));
+  ret.append(" km, is: ");
+
+  for (size_t i = 0; i < pathdata.first.size() - 1; i++) {
+    ret.append(pathdata.first[i]);
+    ret.append(" -> ");
+  }
+  ret.append(pathdata.first[pathdata.first.size() - 1]);
+  ret.append(", with the following airports avoided: ");
+
+  for (size_t j = 0; j < forbidden.size() - 1; j++) {
+    ret.append(forbidden[j]);
+    ret.append(", ");
+  }
+  ret.append(forbidden[forbidden.size() - 1]);
+  ret.append(".");
+  
+  cout << ret << endl;
+  
+  std::ofstream file("A*_result.txt");
+  file << ret;
 }
 
 /**
@@ -232,6 +349,9 @@ double AirportRouteFinder::calculateGreatCircle(double lat1, double long1, doubl
  * Creates a dictionary, vertexs in graph, and a list of airport locations (in Lat and Long) from data.
  * 
  * Helper function for class constructor
+ * 
+ * @param filename: filname for airport data
+ * 
  */
 void AirportRouteFinder::airportDataLoader(string filename) {
   std::ifstream infile(filename);
@@ -288,7 +408,10 @@ void AirportRouteFinder::airportDataLoader(string filename) {
   }
 }
 
-//helper map function
+/**
+ * Helper function for dijkstra and aStar
+ * Creates a map, mapping airports into an int
+ */
 std::map<int, string> AirportRouteFinder::makeMap(vector<string> src) {
   std::map<int, string> sourceMap;
   for (size_t i = 0; i < src.size(); i++) {
@@ -297,7 +420,10 @@ std::map<int, string> AirportRouteFinder::makeMap(vector<string> src) {
   return sourceMap;
 }
 
-//inverse map
+/**
+ * Helper function for dijkstra and aStar
+ * Creates an inverse map for runtime purposes. 
+ */
 std::map<string, int> AirportRouteFinder::inverse_map(std::map<int,string> &oriMap){
   std::map<string, int> invMap;
   std::for_each(oriMap.begin(), oriMap.end(), [&invMap] (const std::pair<int, string> &p)
@@ -307,12 +433,12 @@ std::map<string, int> AirportRouteFinder::inverse_map(std::map<int,string> &oriM
     return invMap;
 }
 
-/*
-Find the shortest path between two airports, and get the distance between them
-parameter: src -> starting point
-parameter: dest-> destination
-return: a pair of string, recording the complete path from the start to the destination, and an int, the distance of this path
-*/
+/**
+ * Find the shortest path between two airports, and get the distance between them.
+ * @param src -> starting point
+ * @param dest-> destination
+ * @returns a pair of string, recording the complete path from the start to the destination, and an int, the distance of this path. 
+ */
 pair<vector<string>, int> AirportRouteFinder::dijkstra(string src, string dest){
   //initialize a minimal heap
   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
@@ -341,7 +467,7 @@ pair<vector<string>, int> AirportRouteFinder::dijkstra(string src, string dest){
 
   //make sure the input is valid
   if (startIdx == revAirportMap.end() || destIdx == revAirportMap.end()) {
-    return pair<vector<string>, int>(vector<string>(), 0);
+    return pair<vector<string>, int>(vector<string>(), -1);
   }
 
   //push the source to the heap
@@ -396,12 +522,12 @@ pair<vector<string>, int> AirportRouteFinder::dijkstra(string src, string dest){
       return pair<vector<string>, int>(vector<string>(), INF);
     }
 
-    /*
-    Find the path from dest to src(since only prev exists), and add the vertex along the path to a stack;
-    Specifically we start from adding the previous vertex of dest, then add previous vertex of that and so on until 
-    we reached the beginning of the path (the 2nd vertext which would add the src vertetx to the stack);
-    Previous of dest will be at the bottom of the stack, src will be at the top; dest itself will be left out for now.
-    */
+    /**
+     * Find the path from dest to src(since only prev exists), and add the vertex along the path to a stack;
+     * Specifically we start from adding the previous vertex of dest, then add previous vertex of that and so on until 
+     * we reached the beginning of the path (the 2nd vertext which would add the src vertetx to the stack);
+     * Previous of dest will be at the bottom of the stack, src will be at the top; dest itself will be left out for now.
+     */
     string previousVer = dest;
     stack<string> routes;
     while (previousVer != src) {
@@ -424,8 +550,14 @@ pair<vector<string>, int> AirportRouteFinder::dijkstra(string src, string dest){
     return pair<vector<string>, int>(toReturn, dist[destIdx->second]);
 }
 
-//Astar algorithm
-pair<vector<string>, int> AirportRouteFinder::aStar(string src, string dest, vector<string> forbidden){
+/**
+ * Find the shortest path between two airports, and get the distance between them with forbidden airports listed.
+ * @param src -> starting point
+ * @param dest -> destination
+ * @param forbidden -> references of a vector of airports to avoid
+ * @returns a pair of string, recording the complete path from the start to the destination, and an int, the distance of this path. 
+ */
+pair<vector<string>, int> AirportRouteFinder::aStar(string src, string dest, vector<string> & forbidden){
   //initialize a minimal heap
   priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
   //size of vertices are the number of airports
@@ -451,7 +583,7 @@ pair<vector<string>, int> AirportRouteFinder::aStar(string src, string dest, vec
 
   //make sure the input is valid
   if (startIdx == revAirportMap.end() || destIdx == revAirportMap.end()) {
-    return pair<vector<string>, int>(vector<string>(), 0);
+    return pair<vector<string>, int>(vector<string>(), -1);
   }
 
   //initialize the heuristic value for all the vertices
@@ -487,7 +619,7 @@ pair<vector<string>, int> AirportRouteFinder::aStar(string src, string dest, vec
   pq.push(make_pair(srcH, src)); 
   dist[startIdx->second] = 0;
 
-    //loop until the heap is empty
+  //loop until the heap is empty
   while (!pq.empty()) 
     { 
       // The first vertex in pair is the minimum distance 
@@ -543,11 +675,11 @@ pair<vector<string>, int> AirportRouteFinder::aStar(string src, string dest, vec
     }
 
     /*
-    Find the path from dest to src(since only prev exists), and add the vertex along the path to a stack;
-    Specifically we start from adding the previous vertex of dest, then add previous vertex of that and so on until 
-    we reached the beginning of the path (the 2nd vertext which would add the src vertetx to the stack);
-    Previous of dest will be at the bottom of the stack, src will be at the top; dest itself will be left out for now.
-    */
+     * Find the path from dest to src(since only prev exists), and add the vertex along the path to a stack;
+     * Specifically we start from adding the previous vertex of dest, then add previous vertex of that and so on until 
+     * we reached the beginning of the path (the 2nd vertext which would add the src vertetx to the stack);
+     * Previous of dest will be at the bottom of the stack, src will be at the top; dest itself will be left out for now.
+     */
     string previousVer = dest;
     stack<string> routes;
     while (previousVer != src) {

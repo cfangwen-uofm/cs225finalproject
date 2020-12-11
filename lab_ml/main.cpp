@@ -19,6 +19,16 @@ int main() {
   // NimLearner nim("testdata/test-1.txt");
   // NimLearner nim("testdata/test-2-dup.txt");
   NimLearner nim("testdata/routes.txt");
+
+  vector<string> list = nim.destAfterMutipleTransfer("CMI", 2);
+  vector<string> list2 = nim.finalDestAfterMutipleTransfer("CMI", 2);
+  for (size_t i = 0; i < list.size(); i++) {
+    std::cout << list[i] << std::endl;
+  }
+  std::cout << "Finished list 1" << std::endl;
+  for (size_t i = 0; i < list2.size(); i++) {
+    std::cout << list2[i] << std::endl;
+  }
   // NimLearner nim("testdata/routes-copy.txt");
   
 
