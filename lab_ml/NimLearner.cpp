@@ -13,7 +13,7 @@
 #include <stack>
 //#include <sstring>
 typedef pair<int, string> iPair; 
-# define INF 0xFFFFFF 
+# define INF 0xFFFFFF
 using namespace std;
 
 //used for read routes only
@@ -341,18 +341,13 @@ string NimLearner::dijkstra(string src, string dest){
       for (Vertex ver : g_.getAdjacent(u)) 
       { 
         //make sure there's no duplicate vertices in the graph
-        if (!(T.vertexExists(ver))) {
           // Get vertex label and weight of current adjacent of u 
           string v = ver;
           //insert the vertex
-          T.insertVertex(v);
+          // T.insertVertex(v);
           //get weight from current vertex to the adjacent vertex 
           int weight = g_.getEdgeWeight(u,v);
 
-          //make the graph
-          T.insertEdge(u,v);
-          T.setEdgeWeight(u,v,weight);
-          T.setEdgeLabel(u,v,to_string(weight));
 
           // find if there is shorter path to v through u. 
           auto vIdx = revAirportMap.find(v);
@@ -365,7 +360,6 @@ string NimLearner::dijkstra(string src, string dest){
               //store the previous vertex of the shortest path to the prevStop vector 
               prevStop[vIdx->second] = u;
           } 
-        }
       }
     }
     //initialize the return string
@@ -387,6 +381,159 @@ string NimLearner::dijkstra(string src, string dest){
     while (previousVer != src) {
       auto previousVerIdx = revAirportMap.find(previousVer);
       previousVer = prevStop[previousVerIdx->second];
+      routes.push(previousVer);
+    }
+
+    //add vertices from the stack to ret so now the ret will have proper order (src->dest)
+    while(!routes.empty()) {
+      ret.append(routes.top());
+      ret.append(" -> ");
+      routes.pop();
+    }
+    //since we did not add in dest before now we add dest at the end 
+    ret.append(dest);
+
+    //add the distance between src and dest to return value
+    ret.append(" distance is ");
+    ret.append(to_string(dist[destIdx->second]));
+    ret.append(" km");
+    return ret;
+}
+
+//Astar algorithm
+string NimLearner::aStar(string src, string dest, vector<string> forbidden){
+  //initialize a minimal heap
+  priority_queue< iPair, vector <iPair> , std::greater<iPair> > pq; 
+  //size of vertices are the number of airports
+  int V = airportLocation.size();
+
+  //dist stores the distance from the src to the current airport
+  vector<int> dist(V, INF); 
+
+  //prevStop stores the previous airport in the shortest path
+  vector<Vertex> prevStop(V, "");  
+  //keep track of visited location
+  vector<string> visited;
+  
+  //create a map to get faster query speed
+  std::map<int, string> airportmap = makeMap(airportLocation);  
+  //use inverse map to get the index given the airport
+  std::map<string, int> revAirportMap = inverse_map(airportmap);
+
+  //find the map pair of the source
+  auto startIdx = revAirportMap.find(src);
+  //find the map pair of the destination
+  auto destIdx = revAirportMap.find(dest);
+
+  //make sure the input is valid
+  if (startIdx == revAirportMap.end() || destIdx == revAirportMap.end()) {
+    return "Invalid Input";
+  }
+
+  //initialize the heuristic value for all the vertices
+  vector<double> hvalue;
+  //create a map with airport name and h value 
+  std::map<string, double> H;
+  //get the latitude and longitude of the destination by -> and .
+  auto destlatlong = airports.find(dest);
+  double destlat = destlatlong->second.first;
+  double destlong = destlatlong->second.second;
+
+  //find all the heuristic value
+  for (auto airport: airportLocation ) {
+    auto curlatlong = airports.find(airport);
+    double curlat = curlatlong->second.first;
+    double curlong = curlatlong->second.second;
+    double hairport = calculateGreatCircle(curlat, curlong, destlat, destlong);
+    hvalue.push_back(hairport);
+  }
+
+  //make the forbidden location's h value to INF
+  for (auto cantGo: forbidden) {
+    auto cantGoIdx = revAirportMap.find(cantGo);
+    hvalue[cantGoIdx->second] = INF;
+  }
+
+  //create a map (airport, h value)
+  for (size_t i = 0; i < airports.size(); i++) {
+    H.insert(make_pair(airportLocation[i], hvalue[i]));
+  }
+  //push the source to the heap 
+  double srcH = H.find(src)->second;
+  pq.push(make_pair(srcH, src)); 
+  dist[startIdx->second] = 0;
+
+    //loop until the heap is empty
+  while (!pq.empty()) 
+    { 
+      // The first vertex in pair is the minimum distance 
+      // vertex, extract it from priority queue. 
+      // vertex label is stored in second of pair (it 
+      // has to be done this way to keep the vertices 
+      // sorted distance (distance must be first item 
+      // in pair) 
+      string u = pq.top().second; 
+      if(u == dest) {
+        break;
+      }
+      // T.insertVertex(u);
+      //pop the vertex with the minimal distance
+      pq.pop(); 
+      visited.push_back(u);
+
+      //find the map pair of the current vertex
+      auto uIdx = revAirportMap.find(u)->second;
+
+      //search every adjacent vertices for a shortest path
+      for (Vertex v : g_.getAdjacent(u)) 
+      { 
+        //make sure there's no duplicate vertices in the graph
+        auto it = find(visited.begin(), visited.end(), v);
+        if (it == visited.end()) {
+          // Get vertex label and weight of current adjacent of u 
+          //get weight from current vertex to the adjacent vertex 
+          int weight = g_.getEdgeWeight(u,v);
+
+          // find if there is shorter path to v through u. 
+          auto vIdx = revAirportMap.find(v)->second;
+          //if the distance is shorter
+          double vAscore = dist[uIdx] + weight + hvalue[vIdx];
+          if (dist[vIdx] + hvalue[vIdx] > vAscore) 
+          { 
+              // Updating distance of v 
+              dist[vIdx] = dist[uIdx] + weight; 
+              if(dist[vIdx] >= INF) {
+                return "No path exists";
+              }
+              pq.push(make_pair(vAscore, v));
+              //store the previous vertex of the shortest path to the prevStop vector 
+              prevStop[vIdx] = u;
+          } 
+        }
+      }
+    }
+      //initialize the return string
+    string ret = "";
+
+    //if there's no path between src and dest
+    if (dist[destIdx->second] >= INF) {
+      return "no path exists";
+    }
+
+    /*
+    Find the path from dest to src(since only prev exists), and add the vertex along the path to a stack;
+    Specifically we start from adding the previous vertex of dest, then add previous vertex of that and so on until 
+    we reached the beginning of the path (the 2nd vertext which would add the src vertetx to the stack);
+    Previous of dest will be at the bottom of the stack, src will be at the top; dest itself will be left out for now.
+    */
+    string previousVer = dest;
+    stack<string> routes;
+    while (previousVer != src) {
+      auto previousVerIdx = revAirportMap.find(previousVer)->second;
+      previousVer = prevStop[previousVerIdx];
+      if(hvalue[previousVerIdx] == INF){
+        return "No path exists";
+      }
       routes.push(previousVer);
     }
 

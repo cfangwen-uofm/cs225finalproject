@@ -49,6 +49,13 @@ int main() {
   //   myfile  <<i<<"the distance to " <<nim.airportLocation[i].c_str()<<" is "<< output[i]<<endl;
   // }
   // myfile.close();
-  std::cout<<nim.dijkstra("ABD","CMI")<<std::endl;
+  vector<string>forbiden;
+  forbiden.push_back("UUU");
+  // forbiden.push_back("DFW");
+  std::cout<<nim.aStar("PEK","AER",forbiden)<<std::endl;
+
+  // std::cout<<nim.dijkstra("CMI","ABD")<<std::endl;
+
+
   return 0;
 }
