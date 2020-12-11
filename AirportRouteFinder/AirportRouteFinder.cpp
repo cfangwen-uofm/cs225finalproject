@@ -275,6 +275,35 @@ void AirportRouteFinder::printBFS2(pair<vector<string>, int> & aps) {
 void AirportRouteFinder::printPath1(pair<vector<string>, int> & pathdata) {
   // String showing information
   string ret;
+  if (pathdata.second == 0) {
+    ret.append("Iniital and destination airports are the same.");
+    cout << ret << endl;
+  
+    std::ofstream file("dijkstra_result.txt");
+    file << ret;
+
+    return;
+  }
+
+  if (pathdata.second == INF) {
+    ret.append("Cannot find a path!");
+    cout << ret << endl;
+  
+    std::ofstream file("dijkstra_result.txt");
+    file << ret;
+
+    return;
+  }
+
+  if (pathdata.second == -1) {
+    ret.append("Invalid Input!");
+    cout << ret << endl;
+  
+    std::ofstream file("dijkstra_result.txt");
+    file << ret;
+
+    return;
+  }
 
   ret.append("Shortest Path, with a distance of ");
   ret.append(to_string(pathdata.second));
@@ -300,6 +329,35 @@ void AirportRouteFinder::printPath1(pair<vector<string>, int> & pathdata) {
 void AirportRouteFinder::printPath2(pair<vector<string>, int> & pathdata, vector<string> & forbidden) {
   // String showing information
   string ret;
+  if (pathdata.second == 0) {
+    ret.append("Iniital and destination airports are the same.");
+    cout << ret << endl;
+  
+    std::ofstream file("dijkstra_result.txt");
+    file << ret;
+
+    return;
+  }
+
+  if (pathdata.second == INF) {
+    ret.append("Cannot find a path!");
+    cout << ret << endl;
+  
+    std::ofstream file("dijkstra_result.txt");
+    file << ret;
+
+    return;
+  }
+
+  if (pathdata.second == -1) {
+    ret.append("Invalid Input!");
+    cout << ret << endl;
+  
+    std::ofstream file("dijkstra_result.txt");
+    file << ret;
+
+    return;
+  }
 
   ret.append("Shortest Path, with a distance of ");
   ret.append(to_string(pathdata.second));
@@ -438,6 +496,9 @@ std::map<string, int> AirportRouteFinder::inverse_map(std::map<int,string> &oriM
  * @param src -> starting point
  * @param dest-> destination
  * @returns a pair of string, recording the complete path from the start to the destination, and an int, the distance of this path. 
+ * If distance in pair.second = 0: start point and destination are the same.
+ * If distance in pair.second = -1: invalid inputs.
+ * If distance in pair.second = INF: cannot find a path.
  */
 pair<vector<string>, int> AirportRouteFinder::dijkstra(string src, string dest){
   //initialize a minimal heap
@@ -556,6 +617,9 @@ pair<vector<string>, int> AirportRouteFinder::dijkstra(string src, string dest){
  * @param dest -> destination
  * @param forbidden -> references of a vector of airports to avoid
  * @returns a pair of string, recording the complete path from the start to the destination, and an int, the distance of this path. 
+ * If distance in pair.second = 0: start point and destination are the same.
+ * If distance in pair.second = -1: invalid inputs.
+ * If distance in pair.second = INF: cannot find a path.
  */
 pair<vector<string>, int> AirportRouteFinder::aStar(string src, string dest, vector<string> & forbidden){
   //initialize a minimal heap

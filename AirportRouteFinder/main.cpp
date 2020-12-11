@@ -35,5 +35,17 @@ int main() {
   pair<vector<string>, int> r2 = ap.aStar(source, dest, forbidden);
   ap.printPath2(r2, forbidden);
 
+  // Invalid Input test
+  pair<vector<string>, int> r3 = ap.dijkstra("CMI", "JJJ");
+  ap.printPath1(r3);
+
+  // Same dest and start airport test
+  pair<vector<string>, int> r4 = ap.dijkstra("CMI", "CMI");
+  ap.printPath1(r4);
+
+  // Cannot find a path test
+  pair<vector<string>, int> r5 = ap.dijkstra("CMI", "TKF");
+  ap.printPath1(r5);
+
   return 0;
 }
