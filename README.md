@@ -1,1 +1,53 @@
-# fangwen2-yixiaol2-pw8-billdai2
+# AirportRouteFinder
+#### A data structure of Airports and Routes providing path finding and traversal algorithms
+
+## Location of and Using the Code
+The code is located in folder **AirportRouteFinder**. Everything can be ran inside this folder.   
+Test cases are provided under tests folder and a demo is provided in main.cpp.  
+You can run the code in main.cpp.  
+Once the constructor is set, you can use public methods to serve different purposes.  
+A default route database is located in testdata/routes.txt. Any other route database must follow the format of the data in testdata/routes.txt.
+
+## Theory
+This project is designed to serve the following purposes: 
+1. Build a graph structure having airports as Vertices and routes as Edges
+2. Use BFS traversal to find destinations after a number of transfers
+3. Find preferred (shortest) route between two recorded airports with possible routes given under certain condition.
+
+### Graph Data Structure
+Graph data structure consists of vertices and edges. Here, the airports are vertices and routes are edges.   
+This structure provides basis for this project to develop algorithms to create further usage. 
+
+### BFS Traversal
+BFS traversal's characteristic is "leafs searched all at the same time." With this characteristic, we can design traversals to find destinations after a number of transfer indicated by user. 
+
+### Preferred (Shortest) Route Algorithms
+Here we used Dijkstra and A* Algorithm. Dijkstra can find us the shortest path directly while A* algorithm allows us to find preferred path with restrictions indicated by us. 
+
+## Code Implementation
+### AirportRouteFinder(string filename)
+Constructor taking in route data. This allows us to input different routes data as routes are constantly changing.
+
+### destAfterMutipleTransfer(string initial_ap, int num_of_times)
+Returns total airports in a vector we can reach after a indicated number of transfer using BFS.
+
+### finalDestAfterMutipleTransfer(string initial_ap, int num_of_times)
+Returns the final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer using BFS.
+
+### dijkstra(string start, string dest)
+Find the shortest path, using dijkstra, between two airports, and get the distance between them. 
+
+### aStar(string src, string dest, vector<string> & forbidden)
+Find the preferred path, using A*, between two airports, and get the distance between them with forbidden airports listed. 
+
+### printBFS1(pair<vector<string>, int> & aps)
+Prints the result of destAfterMutipleTransfer.
+
+### printBFS2(pair<vector<string>, int> & aps)
+Prints the result of finalDestAfterMutipleTransfer.
+
+### printPath1(pair<vector<string>, int> & pathdata)
+Prints the result of path found by dijkstra. 
+
+### printPath2(pair<vector<string>, int> & pathdata, vector<string> & forbidden)
+Prints the result of path found by aStar. 

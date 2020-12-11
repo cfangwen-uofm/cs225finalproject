@@ -38,7 +38,7 @@ public:
   /* Find the shortest path between two airports, and get the distance between them */
   pair<vector<string>, int> dijkstra(string start, string dest);
   
-  /* Find the shortest path between two airports, and get the distance between them with forbidden airports listed */
+  /* Find the preferred path between two airports, and get the distance between them with forbidden airports listed */
   pair<vector<string>, int> aStar(string src, string dest, vector<string> & forbidden);
 
   /* Prints the result of destAfterMutipleTransfer */
