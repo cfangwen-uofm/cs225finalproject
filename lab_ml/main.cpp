@@ -50,9 +50,11 @@ int main() {
   // }
   // myfile.close();
   vector<string>forbiden;
-  std::cout<<nim.aStar("ABD","CMI",forbiden)<<std::endl;
-  std::cout<<nim.dijkstra("ABD","CMI")<<std::endl;
-  std::cout<<nim.dijkstra("CMI","ABD")<<std::endl;
+  forbiden.push_back("UUU");
+  // forbiden.push_back("DFW");
+  std::cout<<nim.aStar("PEK","AER",forbiden)<<std::endl;
+
+  // std::cout<<nim.dijkstra("CMI","ABD")<<std::endl;
 
 
   return 0;

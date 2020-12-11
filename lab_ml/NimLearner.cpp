@@ -341,18 +341,13 @@ string NimLearner::dijkstra(string src, string dest){
       for (Vertex ver : g_.getAdjacent(u)) 
       { 
         //make sure there's no duplicate vertices in the graph
-        if (!(T.vertexExists(ver))) {
           // Get vertex label and weight of current adjacent of u 
           string v = ver;
           //insert the vertex
-          T.insertVertex(v);
+          // T.insertVertex(v);
           //get weight from current vertex to the adjacent vertex 
           int weight = g_.getEdgeWeight(u,v);
 
-          //make the graph
-          T.insertEdge(u,v);
-          T.setEdgeWeight(u,v,weight);
-          T.setEdgeLabel(u,v,to_string(weight));
 
           // find if there is shorter path to v through u. 
           auto vIdx = revAirportMap.find(v);
@@ -365,7 +360,6 @@ string NimLearner::dijkstra(string src, string dest){
               //store the previous vertex of the shortest path to the prevStop vector 
               prevStop[vIdx->second] = u;
           } 
-        }
       }
     }
     //initialize the return string
@@ -508,6 +502,9 @@ string NimLearner::aStar(string src, string dest, vector<string> forbidden){
           { 
               // Updating distance of v 
               dist[vIdx] = dist[uIdx] + weight; 
+              if(dist[vIdx] >= INF) {
+                return "No path exists";
+              }
               pq.push(make_pair(vAscore, v));
               //store the previous vertex of the shortest path to the prevStop vector 
               prevStop[vIdx] = u;
@@ -519,7 +516,7 @@ string NimLearner::aStar(string src, string dest, vector<string> forbidden){
     string ret = "";
 
     //if there's no path between src and dest
-    if (dist[destIdx->second] == INF) {
+    if (dist[destIdx->second] >= INF) {
       return "no path exists";
     }
 
@@ -532,8 +529,11 @@ string NimLearner::aStar(string src, string dest, vector<string> forbidden){
     string previousVer = dest;
     stack<string> routes;
     while (previousVer != src) {
-      auto previousVerIdx = revAirportMap.find(previousVer);
-      previousVer = prevStop[previousVerIdx->second];
+      auto previousVerIdx = revAirportMap.find(previousVer)->second;
+      previousVer = prevStop[previousVerIdx];
+      if(hvalue[previousVerIdx] == INF){
+        return "No path exists";
+      }
       routes.push(previousVer);
     }
 
@@ -551,5 +551,4 @@ string NimLearner::aStar(string src, string dest, vector<string> forbidden){
     ret.append(to_string(dist[destIdx->second]));
     ret.append(" km");
     return ret;
-
 }
