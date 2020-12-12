@@ -32,20 +32,14 @@ public:
   /* Returns total airports in a vector we can reach after a indicated number of transfer using BFS. */
   pair<vector<string>, int> destAfterMutipleTransfer (string initial_ap, int num_of_times);
 
-  /* Returns the final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer using BFS. */
-  pair<vector<string>, int> finalDestAfterMutipleTransfer (string initial_ap, int num_of_times);
-
   /* Find the shortest path between two airports, and get the distance between them */
-  pair<vector<string>, int> dijkstra(string start, string dest);
+  pair<vector<string>, int> dijkstra(string src, string dest);
   
   /* Find the preferred path between two airports, and get the distance between them with forbidden airports listed */
   pair<vector<string>, int> aStar(string src, string dest, vector<string> & forbidden);
 
   /* Prints the result of destAfterMutipleTransfer */
   void printBFS1(pair<vector<string>, int> & aps);
-
-  /* Prints the result of finalDestAfterMutipleTransfer */
-  void printBFS2(pair<vector<string>, int> & aps);
 
   /* Prints the result of path found by dijkstra */
   void printPath1(pair<vector<string>, int> & pathdata);

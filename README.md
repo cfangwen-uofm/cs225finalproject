@@ -4,7 +4,7 @@
 ## Location of and Using the Code
 The code is located in folder **AirportRouteFinder**. Everything can be ran inside this folder.   
 Test cases are provided under tests folder and a demo is provided in main.cpp.  
-You can run the code in main.cpp.  
+You can run the code in main.cpp using Class AirportRouteFinder. 
 Once the constructor is set, you can use public methods to serve different purposes.  
 A default route database is located in testdata/routes.txt. Any other route database must follow the format of the data in testdata/routes.txt.
 
@@ -28,26 +28,20 @@ Here we used Dijkstra and A* Algorithm. Dijkstra can find us the shortest path d
 ### AirportRouteFinder(string filename)
 Constructor taking in route data. This allows us to input different routes data as routes are constantly changing.
 
-### destAfterMutipleTransfer(string initial_ap, int num_of_times)
+### destAfterMutipleTransfer()
 Returns total airports in a vector we can reach after a indicated number of transfer using BFS.
 
-### finalDestAfterMutipleTransfer(string initial_ap, int num_of_times)
-Returns the final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer using BFS.
-
-### dijkstra(string start, string dest)
+### dijkstra()
 Find the shortest path, using dijkstra, between two airports, and get the distance between them. 
 
-### aStar(string src, string dest, vector<string> & forbidden)
+### aStar()
 Find the preferred path, using A*, between two airports, and get the distance between them with forbidden airports listed. 
 
-### printBFS1(pair<vector<string>, int> & aps)
+### printBFS1()
 Prints the result of destAfterMutipleTransfer.
 
-### printBFS2(pair<vector<string>, int> & aps)
-Prints the result of finalDestAfterMutipleTransfer.
-
-### printPath1(pair<vector<string>, int> & pathdata)
+### printPath1()
 Prints the result of path found by dijkstra. 
 
-### printPath2(pair<vector<string>, int> & pathdata, vector<string> & forbidden)
+### printPath2()
 Prints the result of path found by aStar. 

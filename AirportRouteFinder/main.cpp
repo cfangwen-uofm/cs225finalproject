@@ -13,14 +13,9 @@ int main() {
   pair<vector<string>, int> v1 = ap.destAfterMutipleTransfer("CMI", 0);
   ap.printBFS1(v1);
 
-  /* COMPARE THE FOLLOWING */
   // Check all destinations with 1 transfer from CMI
   pair<vector<string>, int> v2 = ap.destAfterMutipleTransfer("CMI", 1);
   ap.printBFS1(v2);
-
-  // Check final destinations with 1 transfer from CMI
-  pair<vector<string>, int> v3 = ap.finalDestAfterMutipleTransfer("CMI", 1);
-  ap.printBFS2(v3);
 
   /* COMPARE THE FOLLOWING */
   // Finds shortest path from CMI to JFK

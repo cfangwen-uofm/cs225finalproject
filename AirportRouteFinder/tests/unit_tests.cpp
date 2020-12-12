@@ -38,46 +38,6 @@ TEST_CASE("destAfterMutipleTransfer gives correct number of results #2") {
   REQUIRE(travsed_ap.second == 1);
 }
 
-TEST_CASE("finalDestAfterMutipleTransfer gives correct number of results") {
-  AirportRouteFinder ap("testdata/routes.txt");
-  vector<string> v = ap.finalDestAfterMutipleTransfer("CMI", 0).first;
-  REQUIRE(v.size() == 2);
-  REQUIRE(ap.destAfterMutipleTransfer("CMI", 0).second == 0);
-}
-
-TEST_CASE("finalDestAfterMutipleTransfer does not include midpoint airport #1") {
-  AirportRouteFinder ap("testdata/routes.txt");
-  pair<vector<string>, int> travsed_ap = ap.finalDestAfterMutipleTransfer("CMI", 1);
-  vector<string> v = travsed_ap.first;
-  REQUIRE(v.size() > 2);
-  for (size_t i = 0; i < v.size(); i++) {
-    REQUIRE(v[i] != "ORD");
-    REQUIRE(v[i] != "DFW");
-  }
-  REQUIRE(travsed_ap.second == 1);
-}
-
-TEST_CASE("finalDestAfterMutipleTransfer does not include midpoint airport #2") {
-  AirportRouteFinder ap("testdata/routes.txt");
-  pair<vector<string>, int> travsed_ap = ap.finalDestAfterMutipleTransfer("CMI", 2);
-  vector<string> v = travsed_ap.first;
-  REQUIRE(v.size() > 2);
-  for (size_t i = 0; i < v.size(); i++) {
-    REQUIRE(v[i] != "ORD");
-    REQUIRE(v[i] != "DFW");
-    REQUIRE(v[i] != "JFK");
-  }
-  REQUIRE(travsed_ap.second == 2);
-}
-
-TEST_CASE("destAfterMutipleTransfer gives correct number of results #3") {
-  AirportRouteFinder ap("testdata/routes.txt");
-  vector<string> v1 = ap.destAfterMutipleTransfer("CMI", 3).first;
-  vector<string> v2 = ap.finalDestAfterMutipleTransfer("CMI", 3).first;
-  vector<string> v3 = ap.destAfterMutipleTransfer("CMI", 2).first;
-  REQUIRE(v1.size() - v2.size() == v3.size());
-}
-
 TEST_CASE("dijkstra finds a sole path between CMI and ORD") {
   AirportRouteFinder ap("testdata/routes.txt");
   Vertex source = "CMI";
@@ -239,11 +199,5 @@ TEST_CASE("A* notes input is invalid #2") {
 TEST_CASE("destAfterMutipleTransfer gives empty output with invalid input") {
   AirportRouteFinder ap("testdata/routes.txt");
   vector<string> v1 = ap.destAfterMutipleTransfer("QQQ", 3).first;
-  REQUIRE(v1.size() == 0);
-}
-
-TEST_CASE("finalDestAfterMutipleTransfer gives empty output with invalid input") {
-  AirportRouteFinder ap("testdata/routes.txt");
-  vector<string> v1 = ap.finalDestAfterMutipleTransfer("QQQ", 3).first;
   REQUIRE(v1.size() == 0);
 }

@@ -31,6 +31,7 @@ AirportRouteFinder::AirportRouteFinder(string filename) : g_(true,true){
   string temp;
   int count;
 
+  // Temp vectors for storing data
   std::vector<string> airline;
   std::vector<string> source;
   std::vector<string> dest;
@@ -127,7 +128,7 @@ const Graph & AirportRouteFinder::getGraph() const {
  * If we have already reached the maximum destinations we can reach before the indicated number,
  * we return all possible destinations
  * 
- * This functions uses BFS traversal.
+ * This function uses BFS traversal.
  * 
  * @param initial_ap: initial airport for traversal
  * @param num_of_times: number of times of transfer
@@ -146,72 +147,29 @@ pair<vector<string>, int> AirportRouteFinder::destAfterMutipleTransfer (string i
   vector<string> toReturn;
   q.push(initial_ap);
   visited.insert(std::pair<string, int>(initial_ap, 1));
-  toReturn.push_back(initial_ap); // Add to airports we can reach
 
   int count = 0;
+  int node_count = 1;
 
-  while (!q.empty() && (count - 1) != num_of_times) {
-    count++;
+  int next_node_count = 0;
+
+  while (!q.empty() && (count - 1) != num_of_times + 1) {
     string current_ap = q.front();
+    toReturn.push_back(current_ap); // Add to airports we can reach
     q.pop();
     vector<string> neighbors = g_.getAdjacent(current_ap);
     for (size_t i = 0; i < neighbors.size(); i++) {
       if (visited[neighbors[i]] != 1) {
         visited[neighbors[i]] = 1;
         q.push(neighbors[i]);
-        toReturn.push_back(neighbors[i]); // Add to airports we can reach
+        next_node_count++;
       }
     }
-  }
-
-  return pair<vector<string>, int>(toReturn, num_of_times);
-}
-
-
-/**
- * Returns the final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer.
- * 
- * If we have already reached the maximum destinations we can reach before the indicated number,
- * we return all possible destinations
- * 
- * This functions uses BFS traversal.
- * 
- * @param initial_ap: initial airport for traversal
- * @param num_of_times: number of times of transfer
- *
- * @returns total final airports (excluding the midpoint airports) in a vector we can reach after a indicated number of transfer and transfer times together in a pair.
- */
-pair<vector<string>, int> AirportRouteFinder::finalDestAfterMutipleTransfer (string initial_ap, int num_of_times) {
-  // Check for invalid input
-  if ( airports.find(initial_ap) == airports.end() ) {
-    return pair<vector<string>, int>(vector<string>(), num_of_times);
-  }
-  
-  // Traversal
-  queue<string> q;
-  map<string, int> visited;
-  vector<string> toReturn;
-  q.push(initial_ap);
-  visited.insert(std::pair<string, int>(initial_ap, 1));
-
-  int count = 0;
-
-  while (!q.empty()) {
-    count++;
-    string current_ap = q.front();
-    q.pop();
-    vector<string> neighbors = g_.getAdjacent(current_ap);
-    for (size_t i = 0; i < neighbors.size(); i++) {
-      if (visited[neighbors[i]] != 1) {
-        visited[neighbors[i]] = 1;
-        q.push(neighbors[i]);
-        if (count - 1 == num_of_times) {
-          toReturn.push_back(neighbors[i]); // Add to final airports we can reach
-        }
-      }
-    }
-    if (count - 1 == num_of_times) {
-      break;
+    node_count--;
+    if (node_count == 0) {
+      count++;
+      node_count = next_node_count;
+      next_node_count = 0;
     }
   }
 
@@ -240,31 +198,6 @@ void AirportRouteFinder::printBFS1(pair<vector<string>, int> & aps) {
   cout << ret << endl;
   
   std::ofstream file("destAfterMutipleTransfer_result.txt");
-  file << ret;
-}
-
-/**
- * Prints the result of finalDestAfterMutipleTransfer.
- * Prints in cout stream and saves into a file
- */
-void AirportRouteFinder::printBFS2(pair<vector<string>, int> & aps) {
-  // String showing information
-  string ret;
-
-  ret.append("Final airports we can reach after ");
-  int num_of_times = aps.second;
-  ret.append(to_string(num_of_times));
-  ret.append(" times of transfer: ");
-
-  // Looping
-  for (size_t i = 0; i < aps.first.size() - 1; i++) {
-    ret.append(aps.first[i]);
-    ret.append(", ");
-  }
-  ret.append(aps.first[aps.first.size() - 1]);
-  cout << ret << endl;
-  
-  std::ofstream file("finalDestAfterMutipleTransfer_result.txt");
   file << ret;
 }
 
