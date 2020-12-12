@@ -38,10 +38,10 @@ Find the shortest path, using dijkstra, between two airports, and get the distan
 Find the preferred path, using A*, between two airports, and get the distance between them with forbidden airports listed. 
 
 ### printBFS1()
-Prints the result of destAfterMutipleTransfer.
+Prints the result of destAfterMutipleTransfer. Results are printed in `destAfterMutipleTransfer_result.txt` and terminal. 
 
 ### printPath1()
-Prints the result of path found by dijkstra. 
+Prints the result of path found by dijkstra. Results are printed in `dijkstra_result.txt` and terminal. 
 
 ### printPath2()
-Prints the result of path found by aStar. 
+Prints the result of path found by aStar. Results are printed in `A*_result.txt` and terminal. 
