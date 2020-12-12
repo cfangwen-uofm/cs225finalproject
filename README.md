@@ -1,5 +1,6 @@
 # AirportRouteFinder
 #### A data structure of Airports and Routes providing path finding and traversal algorithms
+Intro Video: https://mediaspace.illinois.edu/media/1_ij9oib2c
 
 ## Location of and Using the Code
 The code is located in folder **`AirportRouteFinder`**. Everything can be ran inside this folder.   
