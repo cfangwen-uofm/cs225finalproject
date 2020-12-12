@@ -2,11 +2,11 @@
 #### A data structure of Airports and Routes providing path finding and traversal algorithms
 
 ## Location of and Using the Code
-The code is located in folder **AirportRouteFinder**. Everything can be ran inside this folder.   
-Test cases are provided under tests folder and a demo is provided in main.cpp.  
-You can run the code in main.cpp using Class AirportRouteFinder. 
+The code is located in folder **`AirportRouteFinder`**. Everything can be ran inside this folder.   
+Test cases are provided under `tests` folder and a demo is provided in `main.cpp`.  
+You can run the code in `main.cpp` using `Class AirportRouteFinder`. 
 Once the constructor is set, you can use public methods to serve different purposes.  
-A default route database is located in testdata/routes.txt. Any other route database must follow the format of the data in testdata/routes.txt.
+A default route database is located in `testdata/routes.txt`. Any other route database must follow the format of the data in `testdata/routes.txt`.
 
 ## Theory
 This project is designed to serve the following purposes: 
