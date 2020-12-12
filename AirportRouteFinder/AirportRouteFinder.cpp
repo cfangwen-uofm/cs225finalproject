@@ -209,7 +209,7 @@ void AirportRouteFinder::printPath1(pair<vector<string>, int> & pathdata) {
   // String showing information
   string ret;
   if (pathdata.second == 0) {
-    ret.append("Iniital and destination airports are the same.");
+    ret.append("Initial and destination airports are the same.");
     cout << ret << endl;
   
     std::ofstream file("dijkstra_result.txt");
@@ -263,7 +263,7 @@ void AirportRouteFinder::printPath2(pair<vector<string>, int> & pathdata, vector
   // String showing information
   string ret;
   if (pathdata.second == 0) {
-    ret.append("Iniital and destination airports are the same.");
+    ret.append("Initial and destination airports are the same.");
     cout << ret << endl;
   
     std::ofstream file("dijkstra_result.txt");
